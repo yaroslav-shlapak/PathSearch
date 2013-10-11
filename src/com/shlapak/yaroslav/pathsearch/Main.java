@@ -10,13 +10,13 @@ public class Main {
 				{0, 0, 0, 0, 0, 1, 1, 1},
 				{1, 0, 0, 0, 0, 1, 1, 0},
 				{1, 0, 1, 0, 0, 0, 1, 0},
-				{1, 1, 1, 1, 1, 1, 1, 0},
+				{1, 1, 0, 1, 1, 1, 1, 0},
 				{1, 0, 0, 1, 0, 1, 1, 1},
 				{1, 1, 0, 0, 0, 0, 0, 0},
 				{1, 1, 1, 1, 1, 1, 1, 1},
 			};
 		int startElem[] = {0, 0};
-		int finishElem[] = {7, 7};
+		int finishElem[] = {5, 5};
 		
 		WavePathFind wpf = new WavePathFind(matrix, startElem, finishElem);
 		wpf.sendWave();
