@@ -8,7 +8,7 @@ public class WavePathFind {
 	private int matrix[][];
 	private int startElem[];
 	private int finishElem[];
-	private int currentElem[] = { 0, 1 };
+	private int currentElem[];
 	private int waveMat[][];
 	private int tempElem[];
 	private int generation = 1;
@@ -21,7 +21,7 @@ public class WavePathFind {
 		this.startElem = startElem;
 		this.finishElem = finishElem;
 		tempElem = new int[2];
-		// currentElem = new int[2];
+		currentElem = new int[2];
 	}
 
 	public int[][] sendWave() {
@@ -33,8 +33,10 @@ public class WavePathFind {
 		while (!queue.isEmpty()) {
 			currentElem = queue.poll();
 			if (currentElem[0] == finishElem[0]
-					&& currentElem[1] == finishElem[1])
+					&& currentElem[1] == finishElem[1]) {
+				waveMat[currentElem[0]][currentElem[1]] =  + 1;
 				break;
+			}
 			setNearCurrent(queue);
 			printMatrix(waveMat);
 		}
@@ -42,13 +44,17 @@ public class WavePathFind {
 		while (!queue.isEmpty()) {
 			currentElem = queue.poll();
 			if (currentElem[0] == startElem[0]
-					&& currentElem[1] == startElem[1])
+					&& currentElem[1] == startElem[1]) {
+				
 				break;
+			}
 			getMinNearCurrent(queue);
 			printMatrix(waveMat);
 		}
-
-		printMatrix(waveMat);
+		int[][] ans = new int[height][width];
+		copyMatrix(ans, matrix);
+		writeAnswer(ans, queue);
+		printMatrix(ans);
 		return waveMat;
 	}
 
@@ -60,15 +66,11 @@ public class WavePathFind {
 	}
 
 	private void setNearCurrent(Deque<int[]> queue) {
-		System.out.println("currentElem = " + currentElem[0] + " "
-				+ currentElem[1]);
 		for (int i : VAL) {
 			for (int j : VAL) {
 				try {
 					tempElem[0] = currentElem[0] + i;
 					tempElem[1] = currentElem[1] + j;
-					// System.out.println("tempElem = " + tempElem[0] + " " +
-					// tempElem[1]);
 				} catch (Exception e) {
 					System.err.println(e.toString());
 				}
@@ -79,28 +81,26 @@ public class WavePathFind {
 					if (matrix[tempElem[0]][tempElem[1]] == 1
 							&& waveMat[tempElem[0]][tempElem[1]] == 0
 							&& !(tempElem[0] == currentElem[0] && tempElem[1] == currentElem[1])) {
-
-						System.out.println("tempElem = " + tempElem[0] + " "
-								+ tempElem[1]);
-						// System.out.println(tempElem);
 						queue.add(new int[] { tempElem[0], tempElem[1] });
-						waveMat[tempElem[0]][tempElem[1]] = generation + 1;
+						waveMat[tempElem[0]][tempElem[1]] = 
+								waveMat[currentElem[0]][currentElem[1]] + 1;
 					}
 				}
 			}
 		}
-		generation++;
 
 	}
 
 	private void getMinNearCurrent(Deque<int[]> queue) {
-		int minValue, prevMinValue;
 		for (int i : VAL) {
 			for (int j : VAL) {
 				tempElem[0] = currentElem[0] + i;
 				tempElem[1] = currentElem[1] + j;
-				minValue = waveMat[tempElem[0]][tempElem[1]];
-				if(waveMat[tempElem[0]][tempElem[1]] > 0 )
+				if((waveMat[tempElem[0]][tempElem[1]] - 1) == 
+						waveMat[currentElem[0]][currentElem[1]]) {
+					queue.add(new int[] { tempElem[0], tempElem[1] });
+					return;
+				}	
 			}
 		}
 
@@ -118,6 +118,14 @@ public class WavePathFind {
 			System.out.println();
 		}
 		System.out.println("----------------------");
+	}
+	
+	private void writeAnswer(int[][] ans, Deque<int[]> queue) {
+		int[] temp = new int[2];
+		while(!queue.isEmpty()) {
+			temp = queue.poll();
+			ans[temp[0]][temp[0]] = 2;
+		}
 	}
 
 	private void copyMatrix(int matrixTo[][], int matrixFrom[][]) {
