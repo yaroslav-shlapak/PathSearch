@@ -12,7 +12,7 @@ public class WavePathFind {
 	private int waveMat[][];
 	private int tempElem[];
 	private int generation = 1;
-	private static final int[] VAL = { 1, -1, 0 };
+	private static final int[] VAL = { -1, 0, 1 };
 
 	public WavePathFind(int matrix[][], int startElem[], int finishElem[]) {
 		this.matrix = matrix;
@@ -24,120 +24,100 @@ public class WavePathFind {
 		currentElem = new int[2];
 	}
 
-	public int[][] sendWave() {
+	public int[][] getShortestPath() {
 		waveMat = new int[height][width];
 		Deque<int[]> queue = new ArrayDeque<int[]>();
-		printMatrix(matrix);
-		queue.add(new int[] { startElem[0], startElem[0] });
+		MatrixHelper.printMatrix(matrix);
+		
+		queue.add(new int[] { startElem[0], startElem[1] });
 		waveMat[startElem[0]][startElem[1]] = generation;
-		while (!queue.isEmpty()) {
-			currentElem = queue.poll();
-			if (currentElem[0] == finishElem[0]
-					&& currentElem[1] == finishElem[1]) {
-				waveMat[currentElem[0]][currentElem[1]] =  + 1;
-				break;
-			}
-			setNearCurrent(queue);
-			printMatrix(waveMat);
-		}
-		queue.add(new int[] { finishElem[0], finishElem[0] });
-		while (!queue.isEmpty()) {
-			currentElem = queue.poll();
-			if (currentElem[0] == startElem[0]
-					&& currentElem[1] == startElem[1]) {
-				
-				break;
-			}
-			getMinNearCurrent(queue);
-			printMatrix(waveMat);
-		}
+
+		sendWave(queue);
+		MatrixHelper.printMatrix(waveMat);
+
+		queue.clear();
+		queue.add(new int[] { finishElem[0], finishElem[1] });
+
+		findShortestPath(queue);
+
 		int[][] ans = new int[height][width];
-		copyMatrix(ans, matrix);
+		//copyMatrix(ans, matrix);
 		writeAnswer(ans, queue);
-		printMatrix(ans);
-		return waveMat;
+		MatrixHelper.printMatrix(ans);
+		return ans; 
 	}
 
-	public int[][] getShortestPath() {
-		int wayShortest[][] = new int[height][width];
-		copyMatrix(wayShortest, matrix);
+	private void sendWave(Deque<int[]> queue) {
+		while (!queue.isEmpty()) {
+			currentElem = queue.poll();
+			generation = waveMat[currentElem[0]][currentElem[1]] + 1;
+			for (int i : VAL) {
+				for (int j : VAL) {
+					try {
+						tempElem[0] = currentElem[0] + i;
+						tempElem[1] = currentElem[1] + j;
+					} catch (Exception e) {
+						System.err.println(e.toString());
+					}
 
-		return wayShortest;
-	}
-
-	private void setNearCurrent(Deque<int[]> queue) {
-		for (int i : VAL) {
-			for (int j : VAL) {
-				try {
-					tempElem[0] = currentElem[0] + i;
-					tempElem[1] = currentElem[1] + j;
-				} catch (Exception e) {
-					System.err.println(e.toString());
-				}
-
-				if (tempElem[0] >= 0 && tempElem[0] < width && tempElem[1] >= 0
-						&& tempElem[1] < height) {
-
-					if (matrix[tempElem[0]][tempElem[1]] == 1
+					if (isInBounds(tempElem)
+							&& matrix[tempElem[0]][tempElem[1]] == 1
 							&& waveMat[tempElem[0]][tempElem[1]] == 0
 							&& !(tempElem[0] == currentElem[0] && tempElem[1] == currentElem[1])) {
+
 						queue.add(new int[] { tempElem[0], tempElem[1] });
-						waveMat[tempElem[0]][tempElem[1]] = 
-								waveMat[currentElem[0]][currentElem[1]] + 1;
+						waveMat[tempElem[0]][tempElem[1]] = generation;
+						if (tempElem[0] == finishElem[0]
+								&& tempElem[1] == finishElem[1]) {
+							return;
+						}
 					}
 				}
 			}
 		}
-
+		System.out.println("The finish element is unreachable from start element");
 	}
 
-	private void getMinNearCurrent(Deque<int[]> queue) {
-		for (int i : VAL) {
-			for (int j : VAL) {
-				tempElem[0] = currentElem[0] + i;
-				tempElem[1] = currentElem[1] + j;
-				if((waveMat[tempElem[0]][tempElem[1]] - 1) == 
-						waveMat[currentElem[0]][currentElem[1]]) {
-					queue.add(new int[] { tempElem[0], tempElem[1] });
-					return;
-				}	
+	private void findShortestPath(Deque<int[]> queue) {
+
+		while (!(currentElem[0] == startElem[0] && currentElem[1] == startElem[1])) {
+			boolean stop = false;
+			currentElem = queue.getLast();
+			for (int i : VAL) {
+				for (int j : VAL) {
+					tempElem[0] = currentElem[0] + i;
+					tempElem[1] = currentElem[1] + j;
+					if (isInBounds(tempElem)
+							&& (waveMat[tempElem[0]][tempElem[1]] + 1) == waveMat[currentElem[0]][currentElem[1]]) {
+						System.out.println(waveMat[tempElem[0]][tempElem[1]]);
+						queue.add(new int[] { tempElem[0], tempElem[1] });
+						stop = true;
+						if (tempElem[0] == startElem[0]
+								&& tempElem[1] == startElem[1]) {
+							return;
+						}
+						break;
+					}
+				}
+				if (stop)
+					break;
 			}
 		}
-
 	}
 
-	public void printMatrix(int matrix[][]) {
-		for (int row[] : matrix) {
-			for (int e : row) {
-				System.out.print(e);
-				if (e < 10)
-					System.out.print("  ");
-				else
-					System.out.print(" ");
-			}
-			System.out.println();
-		}
-		System.out.println("----------------------");
-	}
-	
+
+
 	private void writeAnswer(int[][] ans, Deque<int[]> queue) {
 		int[] temp = new int[2];
-		while(!queue.isEmpty()) {
+		while (!queue.isEmpty()) {
 			temp = queue.poll();
-			ans[temp[0]][temp[0]] = 2;
+			ans[temp[0]][temp[1]] = -1;
 		}
 	}
 
-	private void copyMatrix(int matrixTo[][], int matrixFrom[][]) {
-		if (matrixTo.length == matrixFrom.length)
-			return;
-		if (matrixTo[0].length == matrixFrom[0].length)
-			return;
-		for (int i = 0; i < matrixFrom.length; i++) {
-			for (int j = 0; j < matrixFrom[0].length; j++) {
-				matrixTo[i][j] = matrixFrom[i][j];
-			}
-		}
+	public boolean isInBounds(int[] elem) {
+		return elem[0] >= 0 && elem[0] < height 
+				&& elem[1] >= 0	&& elem[1] < width;
 	}
 
 }

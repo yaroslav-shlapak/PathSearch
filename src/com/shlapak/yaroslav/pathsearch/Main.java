@@ -5,22 +5,19 @@ public class Main {
 
 	
 	public static void main(String[] args) {
-		int matrix[][] = 
-			{	{1, 1, 1, 1, 1, 1, 1, 1},
-				{0, 0, 0, 0, 0, 1, 1, 1},
-				{1, 0, 0, 0, 0, 1, 1, 0},
-				{1, 0, 1, 0, 0, 0, 1, 0},
-				{1, 1, 0, 1, 1, 1, 1, 0},
-				{1, 0, 0, 1, 0, 1, 1, 1},
-				{1, 1, 0, 0, 0, 0, 0, 0},
-				{1, 1, 1, 1, 1, 1, 1, 1},
-			};
-		int startElem[] = {0, 0};
-		int finishElem[] = {5, 5};
+		int height = 10;
+		int width = 10;
+		int[][] matrix = new int[height][width];
+		MatrixHelper.generateMarix(matrix, height, width);
+		int[] startElem = MatrixHelper.getElement(matrix);
+		int[] finishElem = MatrixHelper.getElement(matrix);
+		System.out.println("startElem " + startElem[0] + " " + startElem[1]);
+		System.out.println("finishElem " + finishElem[0] + " " + finishElem[1]);
 		
 		WavePathFind wpf = new WavePathFind(matrix, startElem, finishElem);
-		wpf.sendWave();
+		wpf.getShortestPath();
 		
 
 	}
+	
 }
